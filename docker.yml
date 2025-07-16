@@ -4,7 +4,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: cloud/docker/Dockerfile-backend
+      dockerfile: cloud/docker/Dockerfile-cloud-backend
     container_name: codexion-backend
     ports:
       - "${BACKEND_PORT:-8000}:8000"
@@ -17,7 +17,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: cloud/docker/Dockerfile-frontend
+      dockerfile: cloud/docker/Dockerfile-cloud-frontend
     container_name: codexion-frontend
     volumes:
       - ./cloud/frontend/react:/app
@@ -36,7 +36,7 @@ services:
       - backend
       - frontend
     volumes:
-      - ./cloud/docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./cloud/docker/cloud-nginx.conf:/etc/nginx/cloud-nginx.conf:ro
       - ./cloud/frontend/react/dist:/usr/share/nginx/html:ro
     ports:
       - "${NGINX_PORT:-80}:80"
