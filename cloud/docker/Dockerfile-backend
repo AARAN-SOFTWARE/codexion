@@ -1,27 +1,48 @@
-FROM python:3.12
+# Dockerfile
+
+FROM ubuntu:24.04
 
 LABEL maintainer="SUNDAR"
 
-# Set working directory
-WORKDIR /app
+# Set non-interactive frontend for apt
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies and Python tools
+# Set working directory
+WORKDIR /workspace
+
+# Install base development packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl git python3-venv python3-dev \
-    build-essential libssl-dev libffi-dev libpq-dev libmariadb-dev \
-    libsasl2-dev libldap2-dev libsqlite3-dev zlib1g-dev \
+    python3.12 python3.12-venv python3.12-dev python3-pip \
+    openssh-server sudo \
+    curl wget git nano unzip ca-certificates \
+    build-essential libssl-dev libffi-dev libpq-dev \
+    libmariadb-dev libsqlite3-dev zlib1g-dev \
+    && ln -sf /usr/bin/python3.12 /usr/bin/python3 \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip \
+    && mkdir -p /var/run/sshd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy backend source code
-COPY ./cloud/backend/ /app
+COPY ./cloud/backend/ /workspace
 
-# Create venv and install Python dependencies
-RUN python3 -m venv .venv && \
-    .venv/bin/pip install --upgrade pip && \
-    if [ -f "requirements.txt" ]; then .venv/bin/pip install --no-cache-dir -r requirements.txt; fi
+# Copy CLI and make global
+COPY ./cloud/backend/setup/init.sh /usr/local/bin/codexion
+RUN chmod +x /usr/local/bin/codexion
 
-# Expose FastAPI port
-EXPOSE 8000
 
-# Run using Gunicorn with Uvicorn worker
-CMD [".venv/bin/gunicorn", "main:app", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000"]
+# Create user sundar with home directory
+RUN useradd -m -d /home/sundar -s /bin/bash sundar && \
+    echo "sundar:sundar" | chpasswd && \
+    mkdir -p /home/sundar/workspace && \
+    chown -R sundar:sundar /home/sundar && \
+    chmod 755 /home/sundar
+
+# Optional: mount workspace directory
+RUN mkdir -p /workspace && ln -s /workspace /home/sundar/workspace
+
+# Expose SSH port for SFTP
+EXPOSE 22
+
+# Start SSH daemon
+SHELL ["/bin/bash", "-c"]
+
