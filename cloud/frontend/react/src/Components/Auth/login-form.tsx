@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "../../lib/utils";
+import { cn } from "../../library/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../Chart/card";
 import FloatingInput from "../Input/FloatingInput";
 import Button from "../Input/Button";

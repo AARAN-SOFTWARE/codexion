@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { cn } from "../../lib/utils"
+import { cn } from "../../library/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "../Chart/card"
 import PasswordInput from "../Input/passwordInput"
 import apiClient from "@/pages/app/api/apiClients"
