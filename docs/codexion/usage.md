@@ -1,9 +1,3 @@
-Install requirements with pip
-
-```
-pip install -r requirements.txt
-```
-
 # to init docker
 ```
 ./cloud/install.sh
