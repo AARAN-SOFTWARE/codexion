@@ -1,0 +1,21 @@
+# .dockerignore-frontend
+
+FROM node:20-alpine
+
+LABEL authors="SUNDAR"
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+COPY cloud/frontend/react/package*.json ./
+RUN npm install
+
+# Copy source code
+COPY cloud/frontend/react/ .
+
+# Expose development port
+EXPOSE 3000
+
+# Default command for development mode
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,17 @@
+fastapi
+python-dotenv
+typer[all]
+aiofiles
+sqlalchemy
+databases
+pydantic
+jinja2
+python-multipart
+httpx
+docker
+psutil
+rich
+aiohttp
+watchdog
+gunicorn
+uvicorn
