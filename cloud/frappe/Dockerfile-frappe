@@ -17,6 +17,8 @@ ENV PYENV_ROOT="/home/devops/.pyenv"
 ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
 ENV NVM_DIR="/home/devops/.nvm"
 ENV NODE_VERSION=20.19.2
+ENV CFLAGS="-I/usr/include/openssl"
+ENV LDFLAGS="-L/usr/lib"
 
 # -------------------------
 # Install System Dependencies
@@ -55,6 +57,11 @@ RUN groupadd devops && \
     echo 'devops ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # -------------------------
+# Copy Supervisor Config
+# -------------------------
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+
+# -------------------------
 # Switch to devops
 # -------------------------
 USER devops
@@ -86,13 +93,14 @@ RUN mkdir -p "$NVM_DIR" && \
     npm install -g yarn
 
 # -------------------------
-# Persist NVM globally (after root switch)
+# Persist NVM globally for all shells
 # -------------------------
 USER root
 RUN echo "export NVM_DIR=\"$NVM_DIR\"" > /etc/profile.d/nvm.sh && \
     echo "[ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"" >> /etc/profile.d/nvm.sh && \
     echo "export PATH=\"\$NVM_DIR/versions/node/v$NODE_VERSION/bin:\$PATH\"" >> /etc/profile.d/nvm.sh && \
-    chmod +x /etc/profile.d/nvm.sh
+    chmod +x /etc/profile.d/nvm.sh && \
+    echo 'source /etc/profile.d/nvm.sh' >> /home/devops/.bashrc
 
 # -------------------------
 # Install Bench CLI
@@ -110,7 +118,7 @@ USER root
 RUN ln -sf /home/devops/.local/bin/bench /usr/local/bin/bench
 
 # -------------------------
-# CLI Script for DevOps
+# CLI Scripts
 # -------------------------
 COPY init_frappe.sh /usr/local/bin/ifrappe
 COPY dbsetup.sh /usr/local/bin/idbsetup
@@ -118,31 +126,33 @@ RUN chmod +x /usr/local/bin/ifrappe
 RUN chmod +x /usr/local/bin/idbsetup
 
 # -------------------------
-# Install Gunicorn for Frappe Web Serving
+# Install Gunicorn
 # -------------------------
 RUN pip install gunicorn
 
 # -------------------------
-# Copy Supervisor Configuration
-# -------------------------
-COPY supervisord.conf /etc/supervisor/supervisord.conf
-
-# -------------------------
-# Supervisor Log Folder
+# Create log folders for Supervisor
 # -------------------------
 RUN mkdir -p /home/devops/logs \
- && touch /home/devops/logs/supervisord.log
-RUN mkdir -p /var/log/supervisor && chown -R devops:devops /var/log/supervisor
+    && mkdir -p /var/log/supervisor \
+    && touch /home/devops/logs/supervisord.log \
+    && chown -R devops:devops /home/devops/logs /var/log/supervisor
+
+# -------------------------
+# Switch back to devops
+# -------------------------
+USER devops
+WORKDIR /home/devops
+
+# -------------------------
+# Run Supervisor on container start
+# -------------------------
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
 # -------------------------
 # Expose Required Ports
 # -------------------------
 EXPOSE 8000 9000 3306 6379
-
-# -------------------------
-# Launch Supervisor on container start
-# -------------------------
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
 # -------------------------
 # Set Default Shell

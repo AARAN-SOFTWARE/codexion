@@ -1,7 +1,7 @@
 services:
   mariadb:
     image: mariadb:11.8
-    container_name: mariadb
+    container_name: codexion-db
     restart: unless-stopped
     environment:
       MARIADB_ROOT_PASSWORD: DbPass1@@
@@ -13,16 +13,22 @@ services:
     ports:
       - "3306:3306"
 
-  frappe:
+  cloud:
     build:
       context: .
-      dockerfile: cloud/docker/Dockerfile-frappe
+      dockerfile: cloud/docker/Dockerfile
     image: codexion-cloud:latest
     container_name: codexion-cloud
     depends_on:
       - mariadb
     ports:
-      - "8000:8000"
+      - "8000:8000"    # Frappe backend
+      - "8080:8080"    # FastAPI
+      - "3000:3000"    # React dev server (optional)
+      - "5173:5173"    # React dev server (optional)
+      - "22:22"        # SSH/SFTP (only if needed)
+      - "9000:9000"    # Optional: code-server or admin UI
+      - "9001:9001"    # Optional: code-server or admin UI
     volumes:
       - cloud_volume:/home/devops
       - ./cloud/supervisor:/etc/supervisor/conf.d
@@ -31,9 +37,9 @@ services:
 
   nginx:
     image: nginx:1.25
-    container_name: nginx
+    container_name: codexion-nginx
     depends_on:
-      - frappe
+      - cloud
     ports:
       - "80:80"
     volumes:
@@ -44,3 +50,4 @@ services:
 volumes:
   cloud_volume:
   db_data:
+
