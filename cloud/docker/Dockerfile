@@ -138,6 +138,7 @@ RUN ln -sf /home/devops/.local/bin/bench /usr/local/bin/bench
 RUN mkdir -p /home/devops/workspace
 COPY ./cloud/backend/ /home/devops/workspace/backend
 COPY ./cloud/frontend/ /home/devops/workspace/frontend
+COPY ./cloud/devops/ /home/devops
 
 # -------------------------
 # CLI Script for DevOps
