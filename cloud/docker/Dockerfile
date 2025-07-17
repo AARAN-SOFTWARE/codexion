@@ -138,13 +138,14 @@ RUN ln -sf /home/devops/.local/bin/bench /usr/local/bin/bench
 RUN mkdir -p /home/devops/workspace
 COPY ./cloud/backend/ /home/devops/workspace/backend
 COPY ./cloud/frontend/ /home/devops/workspace/frontend
-COPY ./cloud/devops/ /home/devops
 
 # -------------------------
 # CLI Script for DevOps
 # -------------------------
-COPY ./cloud/backend/setup/init.sh /usr/local/bin/codexion
-RUN chmod +x /usr/local/bin/codexion
+COPY ./cloud/devops/init_cpanel.sh /usr/local/bin/icpanel
+COPY ./cloud/devops/init_frappe.sh /usr/local/bin/ifrappe
+RUN chmod +x /usr/local/bin/icpanel
+RUN chmod +x /usr/local/bin/ifrappe
 
 # -------------------------
 # Back to devops User
