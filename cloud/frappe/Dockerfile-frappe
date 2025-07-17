@@ -112,8 +112,8 @@ RUN ln -sf /home/devops/.local/bin/bench /usr/local/bin/bench
 # -------------------------
 # CLI Script for DevOps
 # -------------------------
-COPY ./cloud/frappe/init_frappe.sh /usr/local/bin/ifrappe
-COPY ./cloud/frappe/dbsetup.sh /usr/local/bin/idbsetup
+COPY init_frappe.sh /usr/local/bin/ifrappe
+COPY dbsetup.sh /usr/local/bin/idbsetup
 RUN chmod +x /usr/local/bin/ifrappe
 RUN chmod +x /usr/local/bin/idbsetup
 
@@ -125,12 +125,13 @@ RUN pip install gunicorn
 # -------------------------
 # Copy Supervisor Configuration
 # -------------------------
-COPY ./cloud/frappe/supervisord.conf /etc/supervisor/supervisord.conf
+COPY supervisord.conf /etc/supervisor/supervisord.conf
 
 # -------------------------
 # Supervisor Log Folder
 # -------------------------
-RUN mkdir -p /home/devops/logs
+RUN mkdir -p /home/devops/logs \
+ && touch /home/devops/logs/supervisord.log
 RUN mkdir -p /var/log/supervisor && chown -R devops:devops /var/log/supervisor
 
 # -------------------------
