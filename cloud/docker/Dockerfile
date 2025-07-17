@@ -106,6 +106,13 @@ RUN mkdir -p "$NVM_DIR" && \
     nvm alias default $NODE_VERSION && \
     npm install -g yarn
 
+## -------------------------
+## Install Node.js & npm (Global, No NVM)
+## -------------------------
+#RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+#    apt-get install -y nodejs && \
+#    npm install -g yarn
+
 # -------------------------
 # Switch to root and make Node/Yarn globally available
 # -------------------------
@@ -114,6 +121,14 @@ RUN echo "export NVM_DIR=\"$NVM_DIR\"" > /etc/profile.d/nvm.sh && \
     echo "[ -s \"\$NVM_DIR/nvm.sh\" ] && . \"\$NVM_DIR/nvm.sh\"" >> /etc/profile.d/nvm.sh && \
     echo "export PATH=\"\$NVM_DIR/versions/node/v$NODE_VERSION/bin:\$PATH\"" >> /etc/profile.d/nvm.sh && \
     chmod +x /etc/profile.d/nvm.sh
+
+
+# -------------------------
+# Install Cloud Commander (Web-based File Manager)
+# -------------------------
+USER devops
+RUN bash -c ". /etc/profile.d/nvm.sh && nvm use $NODE_VERSION && npm install -g cloudcmd"
+
 
 
 # -------------------------
@@ -166,7 +181,7 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 # -------------------------
 # Expose Ports
 # -------------------------
-EXPOSE 22 8000 8080 3000 8088 8888 9000 5173
+EXPOSE 22 8000 8080 3000 8088 8888 9000 5173 9001
 
 # -------------------------
 # Start supervisor for services

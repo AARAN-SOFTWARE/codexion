@@ -4,10 +4,10 @@ services:
     container_name: codexion-db
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: root
+      MARIADB_ROOT_PASSWORD: DbPass1@@
       MARIADB_DATABASE: codexion
       MARIADB_USER: codexion
-      MARIADB_PASSWORD: codexion123
+      MARIADB_PASSWORD: codexion1@@
     volumes:
       - db_data:/var/lib/mysql
     ports:
@@ -28,6 +28,7 @@ services:
       - "5173:5173"    # React dev server (optional)
       - "22:22"        # SSH/SFTP (only if needed)
       - "9000:9000"    # Optional: code-server or admin UI
+      - "9001:9001"    # Optional: code-server or admin UI
     volumes:
       - cloud_volume:/home/devops
       - ./cloud/supervisor:/etc/supervisor/conf.d

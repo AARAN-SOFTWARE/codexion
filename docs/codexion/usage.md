@@ -159,3 +159,27 @@ ports:
 ---
 
 Would you like to also include optional `sites.txt` support or create multiple sites automatically from a `.env` or list?
+
+
+✅ 2. Clear Git Bash Command History Temporarily
+This clears your in-session command history:
+
+bash
+Copy
+Edit
+history -c
+⚠️ This doesn't remove what's already saved in the .bash_history file until you log out or clear it manually.
+
+
+Run:
+
+bash
+Copy
+Edit
+chmod +x ./install.sh
+Then run it:
+
+bash
+Copy
+Edit
+./install.sh
