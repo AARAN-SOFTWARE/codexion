@@ -183,3 +183,6 @@ bash
 Copy
 Edit
 ./install.sh
+
+
+cloudcmd --port 9001
