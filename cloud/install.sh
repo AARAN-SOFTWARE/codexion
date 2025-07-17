@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-PROJECT_NAME="codexion"
+PROJECT_NAME="codexion-cloud"
 COMPOSE_FILE="docker.yml"
 
 echo ""
@@ -18,6 +18,20 @@ echo ""
 echo "Rebuilding and starting containers..."
 docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" up --build -d
 
+echo "🧪 Version Info:"
+docker run --rm "${PROJECT_NAME}" bash -c "
+  echo 'Python:' && python3 --version
+  echo 'Pip:' && pip3 --version
+  echo 'Node:' && node -v
+  echo 'Yarn:' && yarn -v
+  echo 'Bench:' && bench --version
+  echo 'NGINX:' && nginx -v 2>&1
+"
+
 echo ""
 echo "Showing container status..."
-docker ps --filter "name=$PROJECT_NAME"
+docker ps -a --filter "name=$PROJECT_NAME"
+
+echo ""
+echo "🎉 All services started successfully!"
+exit 0

@@ -1,43 +1,50 @@
-#version: '3.8'
-
 services:
-  backend:
+  mariadb:
+    image: mariadb:11.8
+    container_name: codexion-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: codexion
+      MARIADB_USER: codexion
+      MARIADB_PASSWORD: codexion123
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  cloud:
     build:
       context: .
-      dockerfile: cloud/docker/Dockerfile-cloud-backend
-    container_name: codexion-backend
+      dockerfile: cloud/docker/Dockerfile
+    image: codexion-cloud:latest
+    container_name: codexion-cloud
+    depends_on:
+      - mariadb
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
-      - "22:22"
+      - "8000:8000"    # Frappe backend
+      - "8080:8080"    # FastAPI
+      - "3000:3000"    # React dev server (optional)
+      - "22:22"        # SSH/SFTP (only if needed)
+      - "9000:9000"    # Optional: code-server or admin UI
     volumes:
-      - ./cloud/backend:/workspace
+      - cloud_volume:/home/devops
+      - ./cloud/supervisor:/etc/supervisor/conf.d
     tty: true
     restart: unless-stopped
-
-  frontend:
-    build:
-      context: .
-      dockerfile: cloud/docker/Dockerfile-cloud-frontend
-    container_name: codexion-frontend
-    volumes:
-      - ./cloud/frontend/react:/app
-      - /app/node_modules
-    environment:
-      - VITE_API_URL=http://codexion-backend:8000
-    command: npm run dev
-    restart: unless-stopped
-    ports:
-      - "${FRONTEND_PORT:-3000}:3000"
 
   nginx:
     image: nginx:1.25
     container_name: codexion-nginx
     depends_on:
-      - backend
-      - frontend
-    volumes:
-      - ./cloud/docker/cloud-nginx.conf:/etc/nginx/cloud-nginx.conf:ro
-      - ./cloud/frontend/react/dist:/usr/share/nginx/html:ro
+      - cloud
     ports:
-      - "${NGINX_PORT:-80}:80"
+      - "80:80"  # Only one container should bind port 80 on host
+    volumes:
+      - ./cloud/docker/cloud-nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./cloud/frontend/react/dist:/usr/share/nginx/html:ro
     restart: unless-stopped
+
+volumes:
+  cloud_volume:
+  db_data:
