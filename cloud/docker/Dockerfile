@@ -166,7 +166,7 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 # -------------------------
 # Expose Ports
 # -------------------------
-EXPOSE 22 8000 8080 3000 8088 8888 9000
+EXPOSE 22 8000 8080 3000 8088 8888 9000 5173
 
 # -------------------------
 # Start supervisor for services
